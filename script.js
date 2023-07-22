@@ -49,22 +49,68 @@ function createTimer(t){
     
 }  
 
+function sayHello(timerid) {
+    let timerDiv = document.getElementById(timerid); 
+    let hrs = parseInt(document.getElementById(timerid+"hh").value); 
+    
+    let mins = parseInt(document.getElementById(timerid+"mm").value);
+    let seconds = parseInt(document.getElementById(timerid+"ss").value);
+    let time = hrs * 60 * 60 + mins * 60 + seconds; 
+    time--; 
+    if(time === 0){
+       
+       
+        timerDiv.style.backgroundColor='yellow'
+        timerDiv.style.color='black'
+        timerDiv.children[0].innerHTML = "Timer is Up!";
+       
+        document.getElementById(timerid+"hh").style.display = 'none';
+        document.getElementById(timerid+"mm").style.display = 'none';
+        document.getElementById(timerid+"ss").style.display = 'none';
+
+        playNotificationSound();
+       
+        setTimeout(() => {
+           clearInterval(intervalId)
+        },4000)
+       
+
+    }
+    else{
+        
+        hrs = Math.floor(time / (60 * 60));
+        time = time - hrs*3600;
+        mins = Math.floor(time / (60));
+        time=time-mins*60;
+        //time = time % 60;
+        seconds = time;
+        document.getElementById(timerid+"hh").value= hrs;
+        document.getElementById(timerid+"mm").value= mins;
+        document.getElementById(timerid+"ss").value = seconds;
+    }
+
+}
+
+
 function timerfunction(timerid,time){
     const thistimer = setInterval(sayHello, 1000,timerid);
     timerMap.set(timerid,thistimer);
-    let timerDiv = document.getElementById('timerid');
-    setTimeout(FinishTimer,time,intervalId,timerid)
+    let timerDiv = document.getElementById(timerid);
+    setTimeout(FinishTimer,time,thistimer,timerid)
 }
 
+function FinishTimer(thistimer,timerid){
+    clearInterval(intervalId);
+}
 
 function deleteTimer(divId){
     timers--;
     
     const divToRemove = document.getElementById(divId);
-    let interval = timerMap.get(divId); // getting unique setInterval id related to this timer div
+    let interval = timerMap.get(divId); 
     timerMap.delete(divId);
     if (divToRemove) {
-        // Remove the div element from its parent
+        
         document.body.removeChild(divToRemove);
         clearInterval(interval);
 
@@ -73,6 +119,11 @@ function deleteTimer(divId){
     }
     if(timers>0) document.getElementById("timers").style.visibility="hidden";
     else document.getElementById("timers").style.visibility="visible";
+}
+
+function playNotificationSound() {
+    var audio = document.getElementById('notificationSound');
+    audio.play();
 }
 
 if(timers>0) document.getElementById("timers").style.visibility="hidden";
