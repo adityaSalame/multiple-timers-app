@@ -1,4 +1,4 @@
-console.log('test3');
+//console.log('test3');
 let arr=[];
 document.getElementById("set-button").addEventListener("click",addTimer);
 let timers=0;
@@ -9,39 +9,46 @@ function addTimer(){
     if(timers>0) document.getElementById("timers").style.visibility="hidden";
     else document.getElementById("timers").style.visibility="visible";
     let timerid=createTimer(timers);
+    if(timers>0) document.getElementById("timers").style.visibility="hidden";
+    else document.getElementById("timers").style.visibility="visible";
     
 }
 
 function createTimer(t){
     let timerid=t+"";
+    let h=document.getElementById("hh").value;
+    if(h=="") h="0";
+    let m=document.getElementById("mm").value;
+    if(m=="") m="0";
+    let s=document.getElementById("ss").value;
+    if(s=="") s="0";
+    if(h<0 || m<0 || s<0 ||(h==0 && m==0 && s==0) || m>60 || s>60){
+        alert("Enter a valid value");
+        timers--;
+        if(timers>0) document.getElementById("timers").style.visibility="hidden";
+        else document.getElementById("timers").style.visibility="visible";
+        return; 
+     }
+    
     let timer=document.createElement("div");
     timer.setAttribute("class","time");
     timer.setAttribute("id",timerid);
     timer.innerHTML=`
     <div class="set-time">Time left:</div>
-    <input type="number" id="${timerid}hh" class="hh">
+    <input type="number" id="${timerid}hh" class="hh" style="text-decoration:none">
     :
-    <input type="number"    id="${timerid}mm" class="mm">
+    <input type="number"    id="${timerid}mm" class="mm" style="text-decoration:none">
     :
-    <input type="number" id="${timerid}ss" class="ss">
+    <input type="number" id="${timerid}ss" class="ss" style="text-decoration:none">
     <button clas="delete" onclick="deleteTimer(${timerid})" class="set">Stop timer</button>
     `;
     document.body.appendChild(timer);
 
-    let h=document.getElementById("hh").value;
-    if(h=="") h="0";
-    let H=document.getElementById(timerid+"hh");
-    H.value=h;
-
-    let m=document.getElementById("mm").value;
-    if(m=="") m="0";
-    let M=document.getElementById(timerid+"mm");
-    M.value=m;
-
-    let s=document.getElementById("ss").value;
-    if(s=="") s="0";
-    let S=document.getElementById(timerid+"ss");
-    S.value=s;
+    
+    document.getElementById(timerid+"hh").value= (h<10)? "0"+h : h;
+    document.getElementById(timerid+"mm").value= (m<10)? "0"+m : m;
+    document.getElementById(timerid+"ss").value = (s<10)? "0"+s : s;
+    
 
     let time=h*3600+m*60+s;
     timerfunction(timerid,time);
@@ -49,7 +56,7 @@ function createTimer(t){
     
 }  
 
-function sayHello(timerid) {
+function updateTimer(timerid) {
     let timerDiv = document.getElementById(timerid); 
     let hrs = parseInt(document.getElementById(timerid+"hh").value); 
     
@@ -62,17 +69,21 @@ function sayHello(timerid) {
        
         timerDiv.style.backgroundColor='yellow'
         timerDiv.style.color='black'
-        timerDiv.children[0].innerHTML = "Timer is Up!";
-       
-        document.getElementById(timerid+"hh").style.display = 'none';
-        document.getElementById(timerid+"mm").style.display = 'none';
-        document.getElementById(timerid+"ss").style.display = 'none';
+        timerDiv.innerHTML=`
+            <div class="time-up" style="background-color:transparent;color:black;font-weight:bold"> "Timer is Up!"</div>
+            <button clas="delete" onclick="deleteTimer(${timerid})" class="set">Stop timer</button>
+        `;
+    //     timerDiv.children[0].innerHTML = "Timer is Up!";
+    //    console.log(timerDiv.children[2]);
+    //     document.getElementById(timerid+"hh").style.display = 'none';
+    //     document.getElementById(timerid+"mm").style.display = 'none';
+    //     document.getElementById(timerid+"ss").style.display = 'none';
 
-        playNotificationSound();
+        playNotificationSound(timerid);
        
-        setTimeout(() => {
-           clearInterval(intervalId)
-        },4000)
+        // setTimeout(() => {
+        //    clearInterval(thistimer)
+        // },4000)
        
 
     }
@@ -84,23 +95,23 @@ function sayHello(timerid) {
         time=time-mins*60;
         //time = time % 60;
         seconds = time;
-        document.getElementById(timerid+"hh").value= hrs;
-        document.getElementById(timerid+"mm").value= mins;
-        document.getElementById(timerid+"ss").value = seconds;
+        document.getElementById(timerid+"hh").value= (hrs<10)? "0"+hrs : hrs;
+        document.getElementById(timerid+"mm").value= (mins<10)? "0"+mins : mins;
+        document.getElementById(timerid+"ss").value = (seconds<10)? "0"+seconds : seconds;
     }
 
 }
 
 
 function timerfunction(timerid,time){
-    const thistimer = setInterval(sayHello, 1000,timerid);
+    const thistimer = setInterval(updateTimer, 1000,timerid);
     timerMap.set(timerid,thistimer);
     let timerDiv = document.getElementById(timerid);
     setTimeout(FinishTimer,time,thistimer,timerid)
 }
 
 function FinishTimer(thistimer,timerid){
-    clearInterval(intervalId);
+   //clearInterval(thistimer);
 }
 
 function deleteTimer(divId){
@@ -121,8 +132,10 @@ function deleteTimer(divId){
     else document.getElementById("timers").style.visibility="visible";
 }
 
-function playNotificationSound() {
-    var audio = document.getElementById('notificationSound');
+function playNotificationSound(timerid) {
+    var audio = document.createElement('audio');
+    audio.setAttribute("src","bicycle-bell.mp3");
+    audio.style.display="none";
     audio.play();
 }
 
